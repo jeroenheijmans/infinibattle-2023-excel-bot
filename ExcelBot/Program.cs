@@ -66,19 +66,19 @@ public class Strategy
         return state.Board
             .Where(c => c.Owner == MyColor) // only my pieces can be moved
             .SelectMany(c => GetPossibleMovesFor(c, state)) // all options from all starting points
-            .OrderBy(c => Guid.NewGuid()) // quick and dirty way to shuffle
+            .OrderByDescending(c => c.Score) // quick and dirty strategy
             .First();
     }
 
-    private IEnumerable<Move> GetPossibleMovesFor(Cell origin, GameState state)
+    private IEnumerable<MoveWithScore> GetPossibleMovesFor(Cell origin, GameState state)
     {
-        if (origin.Rank == "Flag" || origin.Rank == "Bomb") return Enumerable.Empty<Move>();
+        if (origin.Rank == "Flag" || origin.Rank == "Bomb") return Enumerable.Empty<MoveWithScore>();
 
         var deltas = new Point[] { new Point(-1, 0), new Point(+1, 0), new Point(0, -1), new Point(0, +1) };
 
         return deltas.SelectMany(delta =>
         {
-            var result = new List<Move>();
+            var result = new List<MoveWithScore>();
             var steps = 0;
             var target = origin.Coordinate;
             while (steps++ < 1 || origin.Rank == "Scout")
@@ -88,7 +88,14 @@ public class Strategy
                 if (targetCell == null) break; // Out of bounds
                 if (targetCell.IsWater) break; // Water ends our options
                 if (targetCell.Owner == MyColor) break; // Own pieces block the path
-                result.Add(new Move { From = origin.Coordinate, To = target });
+
+                var entropyChange = state.Board
+                    .Where(c => c.Owner.HasValue && c.Owner.Value != MyColor)
+                    .Select(c => c.Coordinate.DistanceTo(origin.Coordinate) - c.Coordinate.DistanceTo(target))
+                    .Sum();
+
+                result.Add(new MoveWithScore { From = origin.Coordinate, To = target, Score = entropyChange });
+                
                 if (targetCell.Owner != null) break; // Can't jump over pieces, so this stops the line
             }
             return result;
@@ -144,6 +151,11 @@ public class Move
     public Point To { get; set; }
 }
 
+public class MoveWithScore : Move
+{
+    public int Score { get; set; }
+}
+
 public class BattleResult
 {
     public Player? Winner { get; set; }
@@ -172,4 +184,5 @@ public struct Point
     public override int GetHashCode() => HashCode.Combine(X, Y);
     public bool Equals(Point other) => this == other;
     public override bool Equals(object? other) => other is Point && this.Equals((Point)other);
+    public int DistanceTo(Point other) => Math.Abs(this.X - other.X) + Math.Abs(this.Y - other.Y);
 }
