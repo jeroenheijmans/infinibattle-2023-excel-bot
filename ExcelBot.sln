@@ -3,14 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelBot", "ExcelBot/ExcelBot.csproj", "{457A9160-9DB6-4D61-978A-AFAB04924573}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExcelBot", "ExcelBot\ExcelBot.csproj", "{457A9160-9DB6-4D61-978A-AFAB04924573}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{C38FB176-7619-4D5E-B915-96E618EA5E3F}"
 	ProjectSection(SolutionItems) = preProject
-		.\.gitignore = .\.gitignore
-		.\publish.ps1 = .\publish.ps1
-		.\README.md = .\README.md
+		.gitignore = .gitignore
+		publish.ps1 = publish.ps1
+		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExcelBot.Tests", "ExcelBot.Tests\ExcelBot.Tests.csproj", "{D4FF12F8-C78C-4A03-8793-3C7C3A53C288}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -22,6 +24,10 @@ Global
 		{457A9160-9DB6-4D61-978A-AFAB04924573}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{457A9160-9DB6-4D61-978A-AFAB04924573}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{457A9160-9DB6-4D61-978A-AFAB04924573}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4FF12F8-C78C-4A03-8793-3C7C3A53C288}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4FF12F8-C78C-4A03-8793-3C7C3A53C288}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4FF12F8-C78C-4A03-8793-3C7C3A53C288}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4FF12F8-C78C-4A03-8793-3C7C3A53C288}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,6 @@
-﻿namespace ExcelBot.Models
+﻿using Newtonsoft.Json;
+
+namespace ExcelBot.Models
 {
     public class GameState
     {
@@ -7,6 +9,9 @@
         public Cell[] Board { get; set; } = Array.Empty<Cell>();
         public Move LastMove { get; set; } = new Move();
         public BattleResult BattleResult { get; set; } = new BattleResult();
-    }
 
+        public static GameState FromJson(string json) =>
+            JsonConvert.DeserializeObject<GameState>(json)
+            ?? throw new Exception("GameState deserialization error");
+    }
 }

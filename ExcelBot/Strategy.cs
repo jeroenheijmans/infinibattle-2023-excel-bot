@@ -4,6 +4,13 @@ namespace ExcelBot
 {
     public class Strategy
     {
+        private readonly Random random;
+
+        public Strategy(Random random)
+        {
+            this.random = random;
+        }
+
         public Player MyColor { get; set; }
 
         public BoardSetup initialize(GameInit data)
@@ -14,7 +21,10 @@ namespace ExcelBot
             {
                 Pieces = data.AvailablePieces
                     .OrderBy(_ => Guid.NewGuid()) // Quick and dirty Shuffle()
-                    .Select((rank, idx) => new Piece { Rank = rank, Position = new Point(idx + 1, row + Random.Shared.Next(3)) })
+                    .Select((rank, idx) => new Piece {
+                        Rank = rank,
+                        Position = new Point(idx + 1, row + random.Next(3)),
+                    })
                     .ToArray()
             };
         }
@@ -32,7 +42,7 @@ namespace ExcelBot
             }
         }
 
-        public Move DecideNextMove(GameState state)
+        private Move DecideNextMove(GameState state)
         {
             return state.Board
                 .Where(c => c.Owner == MyColor) // only my pieces can be moved
@@ -68,7 +78,7 @@ namespace ExcelBot
             });
         }
 
-        public void ProcessOpponentMove(GameState state)
+        private void ProcessOpponentMove(GameState state)
         {
             // NO-OP for now, up to you to do something nice...
         }
