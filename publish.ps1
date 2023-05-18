@@ -1,5 +1,4 @@
-if ($args.Count -ne 1) { throw "Script requires single argument with path to your .csproj"; }
-$csprojFolder = $args[0]
+$csprojFolder = "./ExcelBot/"
 
 # Globals and script vars
 $ErrorActionPreference = "Stop"
