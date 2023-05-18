@@ -1,12 +1,16 @@
 ﻿using ExcelBot;
+using ExcelBot.ExcelModels;
 using ExcelBot.Models;
 using Newtonsoft.Json;
+
+var random = new Random();
+var strategy = new Strategy(random);
+var sheet = ExcelLoader.Load("strategy.xlsx");
 
 Console.WriteLine("bot-start");
 
 var initData = Console.ReadLine() ?? throw new Exception("No GameInit");
 var gameInit = GameInit.FromJson(initData);
-var strategy = new Strategy(new Random());
 var boardSetup = strategy.initialize(gameInit);
 var setupMessage = JsonConvert.SerializeObject(boardSetup);
 

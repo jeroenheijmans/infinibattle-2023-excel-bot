@@ -8,7 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="GemBox.Spreadsheet" Version="49.0.1335" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="strategy.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

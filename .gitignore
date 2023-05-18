@@ -30,3 +30,4 @@ bld/
 # Infinibattle stuff
 apiKey
 publish.zip
+~$*.xlsx
