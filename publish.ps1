@@ -9,7 +9,7 @@ $binDirectory = "$($csprojFolder)\bin\$($CONFIGURATION)"
 $zipPath = "$($PSScriptRoot)\publish.zip"
 
 # Build the bot
-dotnet build --configuration $CONFIGURATION
+#dotnet build --configuration $CONFIGURATION
 
 # Remove old zip file, if any
 if (Test-Path $zipPath) { Remove-Item ($zipPath) }

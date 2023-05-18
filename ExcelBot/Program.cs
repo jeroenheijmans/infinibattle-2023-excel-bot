@@ -4,8 +4,8 @@ using ExcelBot.Models;
 using Newtonsoft.Json;
 
 var random = new Random();
-var strategy = new Strategy(random);
-var sheet = ExcelLoader.Load("strategy.xlsx");
+var strategyData = ExcelLoader.Load("strategy.xlsx");
+var strategy = new Strategy(random, strategyData);
 
 Console.WriteLine("bot-start");
 

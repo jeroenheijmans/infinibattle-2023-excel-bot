@@ -1,14 +1,18 @@
-﻿using ExcelBot.Models;
+﻿using ExcelBot.ExcelModels;
+using ExcelBot.Models;
+using System.Linq;
 
 namespace ExcelBot
 {
     public class Strategy
     {
         private readonly Random random;
+        private readonly StrategyData strategyData;
 
-        public Strategy(Random random)
+        public Strategy(Random random, StrategyData strategyData)
         {
             this.random = random;
+            this.strategyData = strategyData;
         }
 
         public Player MyColor { get; set; }
@@ -16,17 +20,23 @@ namespace ExcelBot
         public BoardSetup initialize(GameInit data)
         {
             MyColor = data.You;
-            var row = MyColor == Player.Red ? 0 : 6;
-            return new BoardSetup
+
+            if (MyColor == Player.Blue) strategyData.TransposeAll();
+
+            var pieces = new List<Piece>();
+
+            foreach (var grid in strategyData.StartPositionGrids)
             {
-                Pieces = data.AvailablePieces
-                    .OrderBy(_ => Guid.NewGuid()) // Quick and dirty Shuffle()
-                    .Select((rank, idx) => new Piece {
-                        Rank = rank,
-                        Position = new Point(idx + 1, row + random.Next(3)),
-                    })
-                    .ToArray()
-            };
+                var maxIterations = 10000;
+                for (int i = 0; i < maxIterations; i++)
+                {
+                    var piece = grid.PickStartingPosition(random.Next());
+                    if (pieces.Any(x => x.Position == piece.Position)) continue;
+                    pieces.Add(piece);
+                }
+            }
+
+            return new BoardSetup { Pieces = pieces.ToArray() };
         }
 
         public Move? Process(GameState state)

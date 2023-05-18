@@ -1,3 +1,4 @@
+using ExcelBot.ExcelModels;
 using ExcelBot.Models;
 
 namespace ExcelBot.Tests
@@ -7,7 +8,8 @@ namespace ExcelBot.Tests
         [Fact]
         public void Initialization_for_red_smoke_test_001()
         {
-            var strategy = new Strategy(new Random(123));
+            var strategyData = new StrategyData().WithDefaults();
+            var strategy = new Strategy(new Random(123), strategyData);
             var gameInit = GameInit.FromJson(""""
             {
                 "You": 0,
@@ -27,7 +29,8 @@ namespace ExcelBot.Tests
         [Fact]
         public void Initialization_for_blue_smoke_test_001()
         {
-            var strategy = new Strategy(new Random(123));
+            var strategyData = new StrategyData().WithDefaults();
+            var strategy = new Strategy(new Random(123), strategyData);
             var gameInit = GameInit.FromJson(""""
             {
                 "You": 1,
@@ -47,7 +50,8 @@ namespace ExcelBot.Tests
         [Fact]
         public void Process_returns_null_if_not_your_turn()
         {
-            var strategy = new Strategy(new Random(123))
+            var strategyData = new StrategyData().WithDefaults();
+            var strategy = new Strategy(new Random(123), strategyData)
             {
                 MyColor = Player.Red,
             };
@@ -61,7 +65,8 @@ namespace ExcelBot.Tests
         [Fact]
         public void Process_returns_move_smoke_test_001()
         {
-            var strategy = new Strategy(new Random(123))
+            var strategyData = new StrategyData().WithDefaults();
+            var strategy = new Strategy(new Random(123), strategyData)
             {
                 MyColor = Player.Blue,
             };
@@ -82,6 +87,27 @@ namespace ExcelBot.Tests
                 .And.Match<Move>(m => m.From.X == 0)
                 .And.Match<Move>(m => m.From.Y == 1)
                 .And.Match<Move>(m => m.To.X != 0 || m.To.Y != 1);
+        }
+    }
+
+    public static class StrategyDataExtensions
+    {
+        private static readonly string[] allRanks =
+        {
+            "Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"
+        };
+
+        public static StrategyData WithDefaults(this StrategyData data)
+        {
+            data.StartPositionGrids = allRanks.Select((rank, idx) =>
+            {
+                var grid = new StartPositionGrid { Rank = rank };
+                grid.Probabilities.Add(new Point(idx, 0), 100);
+                return grid;
+            }
+            ).ToList();
+
+            return data;
         }
     }
 }

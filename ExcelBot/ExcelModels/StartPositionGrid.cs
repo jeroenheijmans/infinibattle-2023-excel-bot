@@ -1,5 +1,4 @@
 ﻿using ExcelBot.Models;
-using GemBox.Spreadsheet;
 
 namespace ExcelBot.ExcelModels
 {
@@ -7,57 +6,35 @@ namespace ExcelBot.ExcelModels
     {
         public string Rank { get; set; } = "";
         public IDictionary<Point, int> Probabilities { get; set; } = new Dictionary<Point, int>();
-    }
 
-    public class ExcelStrategy
-    {
-        public ICollection<StartPositionGrid> StartPositionGrids { get; set; } = new List<StartPositionGrid>();
-
-        // TODO: Fixed Starting Positions
-        // TODO: Strategy Variables
-    }
-
-    public static class ExcelLoader
-    {
-        private static readonly (int, int, string)[] GridLocations = new[]
+        // TODO: Unit tests
+        public Piece PickStartingPosition(int randomInt)
         {
-            ( 2,  1, "Flag"),
-            (14,  1, "Bomb"),
-            ( 2, 12, "Scout"),
-            (14, 12, "Miner"),
-            ( 2, 23, "Scout"),
-            (14, 23, "Marshal"),
-            ( 2, 34, "General"),
-            (14, 34, "Spy"),
-        };
-
-        public static ExcelStrategy Load(string path)
-        {
-            SpreadsheetInfo.SetLicense("FREE-LIMITED-KEY");
-            ExcelStrategy excelStrategy = new();
-
-            var workbook = ExcelFile.Load(path);
-            var sheet = workbook.Worksheets[0];
-
-            foreach (var (fromRow, fromCol, rank) in GridLocations)
+            var total = Probabilities.Values.Sum();
+            var choice = randomInt % total;
+            var current = 0;
+            foreach (var (position, probability) in Probabilities)
             {
-                var grid = new StartPositionGrid { Rank = rank };
-                for (int i = 0; i < 10; i++)
+                current += probability;
+                if (current >= choice) return new Piece
                 {
-                    for (int j = 0; j < 10; j++)
-                    {
-                        var cell = sheet.Cells[fromRow + j, fromCol + i];
-                        grid.Probabilities[new Point(i, j)] =
-                            cell.ValueType == CellValueType.Int
-                            ? cell.IntValue
-                            : 0;
-                    }
-                }
-
-                excelStrategy.StartPositionGrids.Add(grid);
+                    Position = position,
+                    Rank = Rank
+                };
             }
+            throw new Exception("Mistake in the algorithm");
+            // TODO: IF RELEASE then pick anything to not crash
+        }
 
-            return excelStrategy;
+        // TODO: Unit tests
+        public void Transpose()
+        {
+            var newProbabilities = new Dictionary<Point, int>();
+            foreach (var (point, value) in Probabilities)
+            {
+                newProbabilities[point.Transpose()] = value;
+            }
+            Probabilities = newProbabilities;
         }
     }
 }
