@@ -34,7 +34,23 @@ namespace ExcelBot.Tests
         public void Can_load_strategy_variables()
         {
             var result = ExcelLoader.Load("strategy.xlsx");
-            result.ChanceAtFixedStartingPosition.Should().BeGreaterThan(0);
+
+            result.ChanceAtFixedStartingPosition.Should().Be(50);
+
+            result.DecisiveVictoryPoints.Should().Be(250);
+            result.DecisiveLossPoints.Should().Be(-1000);
+            result.UnknownBattleOwnHalfPoints.Should().Be(-250);
+            result.UnknownBattleOpponentHalfPoints.Should().Be(500);
+            result.BonusPointsForMoveTowardsOpponent.Should().Be(50);
+            result.BonusPointsForMoveWithinOpponentArea.Should().Be(100);
+
+            result.FuzzynessFactor.Should().Be(25);
+
+            result.BoostForSpy.Should().Be(0);
+            result.BoostForScout.Should().Be(5);
+            result.BoostForMiner.Should().Be(10);
+            result.BoostForGeneral.Should().Be(15);
+            result.BoostForMarshal.Should().Be(20);
         }
     }
 }

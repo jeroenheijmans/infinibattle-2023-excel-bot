@@ -19,6 +19,7 @@ namespace ExcelBot.Runtime.Models
         public override int GetHashCode() => HashCode.Combine(X, Y);
         public bool Equals(Point other) => this == other;
         public override bool Equals(object? other) => other is Point && this.Equals((Point)other);
+        public override string ToString() => $"{X};{Y}";
         public int DistanceTo(Point other) => Math.Abs(this.X - other.X) + Math.Abs(this.Y - other.Y);
     }
 }

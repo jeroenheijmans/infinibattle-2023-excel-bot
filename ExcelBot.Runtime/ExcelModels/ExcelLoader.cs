@@ -95,7 +95,22 @@ namespace ExcelBot.Runtime.ExcelModels
                 var cell = sheet.Cells[reference];
                 return cell.ValueType == CellValueType.Int ? cell.IntValue : 0;
             }
-            excelStrategy.ChanceAtFixedStartingPosition = GetChanceValue("AT5");
+            excelStrategy.ChanceAtFixedStartingPosition = GetChanceValue("AT3");
+
+            excelStrategy.DecisiveVictoryPoints = GetChanceValue("AT15");
+            excelStrategy.DecisiveLossPoints = GetChanceValue("AT16");
+            excelStrategy.UnknownBattleOwnHalfPoints = GetChanceValue("AT17");
+            excelStrategy.UnknownBattleOpponentHalfPoints = GetChanceValue("AT18");
+            excelStrategy.BonusPointsForMoveTowardsOpponent = GetChanceValue("AT19");
+            excelStrategy.BonusPointsForMoveWithinOpponentArea = GetChanceValue("AT20");
+
+            excelStrategy.FuzzynessFactor = GetChanceValue("AT24");
+
+            excelStrategy.BoostForSpy = GetChanceValue("AT27");
+            excelStrategy.BoostForScout = GetChanceValue("AT28");
+            excelStrategy.BoostForMiner = GetChanceValue("AT29");
+            excelStrategy.BoostForGeneral = GetChanceValue("AT30");
+            excelStrategy.BoostForMarshal = GetChanceValue("AT31");
 
             return excelStrategy;
         }

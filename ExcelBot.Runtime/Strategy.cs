@@ -110,12 +110,14 @@ namespace ExcelBot.Runtime
                     {
                         From = origin.Coordinate,
                         To = target,
+                        Rank = origin.Rank,
                         WillBeDecisiveVictory = targetCell.IsKnownPiece && targetCell.CanBeDefeatedBy(origin.Rank),
                         WillBeDecisiveLoss = targetCell.IsKnownPiece && targetCell.WillCauseDefeatFor(origin.Rank),
                         WillBeUnknownBattle = targetCell.IsUnknownPiece,
                         IsBattleOnOwnHalf = targetCell.IsPiece && targetCell.IsOnOwnHalf(MyColor),
                         IsBattleOnOpponentHalf = targetCell.IsPiece && targetCell.IsOnOpponentHalf(MyColor),
                         IsMoveTowardsOpponentHalf = IsMoveTowardsOpponentHalf(origin.Coordinate, target),
+                        IsMoveWithinOpponentHalf = IsMoveWithinOpponentHalf(origin.Coordinate, target),
                     };
 
                     SetScoreForMove(move);
@@ -130,19 +132,34 @@ namespace ExcelBot.Runtime
 
         private bool IsMoveTowardsOpponentHalf(Point from, Point to) =>
             MyColor == Player.Red
-                ? to.Y > 5 || to.Y > from.Y
-                : to.Y < 4 || to.Y < from.Y;
+                ? from.Y < 6 && to.Y > from.Y
+                : from.Y > 3 && to.Y < from.Y;
+
+        private bool IsMoveWithinOpponentHalf(Point from, Point to) =>
+            MyColor == Player.Red
+                ? from.Y > 5 && to.Y > 5
+                : from.Y < 4 && to.Y < 4;
 
         private void SetScoreForMove(MoveWithDetails move)
         {
-            if (move.WillBeDecisiveVictory) move.Score += 100;
-            if (move.WillBeDecisiveLoss) move.Score += -10000;
-            if (move.WillBeUnknownBattle && move.IsBattleOnOwnHalf) move.Score += -50;
-            if (move.WillBeUnknownBattle && move.IsBattleOnOpponentHalf) move.Score += +250;
-            if (move.IsMoveTowardsOpponentHalf) move.Score += 25;
+            if (move.WillBeDecisiveVictory) move.Score += strategyData.DecisiveVictoryPoints;
+            if (move.WillBeDecisiveLoss) move.Score += strategyData.DecisiveLossPoints;
+            if (move.WillBeUnknownBattle && move.IsBattleOnOwnHalf) move.Score += strategyData.UnknownBattleOwnHalfPoints;
+            if (move.WillBeUnknownBattle && move.IsBattleOnOpponentHalf) move.Score += strategyData.UnknownBattleOpponentHalfPoints;
+            if (move.IsMoveTowardsOpponentHalf) move.Score += strategyData.BonusPointsForMoveTowardsOpponent;
+            if (move.IsMoveWithinOpponentHalf) move.Score += strategyData.BonusPointsForMoveWithinOpponentArea;
+
+            var boost = 0;
+            if (move.Rank == "Spy") boost = strategyData.BoostForSpy;
+            if (move.Rank == "Scout") boost = strategyData.BoostForScout;
+            if (move.Rank == "Miner") boost = strategyData.BoostForMiner;
+            if (move.Rank == "General") boost = strategyData.BoostForGeneral;
+            if (move.Rank == "Marshal") boost = strategyData.BoostForMarshal;
+
+            double boostMultiplier = boost + 100;
+            move.Score *= boostMultiplier / 100;
 
             double fuzzynessMultiplier = random.Next(strategyData.FuzzynessFactor) + 100;
-
             move.Score *= fuzzynessMultiplier / 100;
         }
 
