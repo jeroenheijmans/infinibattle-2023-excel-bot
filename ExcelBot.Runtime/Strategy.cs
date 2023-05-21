@@ -118,6 +118,9 @@ namespace ExcelBot.Runtime
                         IsBattleOnOpponentHalf = targetCell.IsPiece && targetCell.IsOnOpponentHalf(MyColor),
                         IsMoveTowardsOpponentHalf = IsMoveTowardsOpponentHalf(origin.Coordinate, target),
                         IsMoveWithinOpponentHalf = IsMoveWithinOpponentHalf(origin.Coordinate, target),
+                        NetChangeInShortestPathToPotentialFlag =
+                            GetShortestPathToPotentialFlag(state, target)
+                            - GetShortestPathToPotentialFlag(state, origin.Coordinate),
                     };
 
                     SetScoreForMove(move);
@@ -128,6 +131,14 @@ namespace ExcelBot.Runtime
                 }
                 return result;
             });
+        }
+
+        private int GetShortestPathToPotentialFlag(GameState state, Point source)
+        {
+            return state.Board
+                .Where(cell => cell.IsUnknownPiece && cell.IsOnOpponentHalf(MyColor))
+                .Select(cell => cell.Coordinate.DistanceTo(source))
+                .Min();
         }
 
         private bool IsMoveTowardsOpponentHalf(Point from, Point to) =>
@@ -148,6 +159,7 @@ namespace ExcelBot.Runtime
             if (move.WillBeUnknownBattle && move.IsBattleOnOpponentHalf) move.Score += strategyData.UnknownBattleOpponentHalfPoints;
             if (move.IsMoveTowardsOpponentHalf) move.Score += strategyData.BonusPointsForMoveTowardsOpponent;
             if (move.IsMoveWithinOpponentHalf) move.Score += strategyData.BonusPointsForMoveWithinOpponentArea;
+            if (move.NetChangeInShortestPathToPotentialFlag < 0) move.Score += strategyData.BonusPointsForMovesGettingCloserToPotentialFlags;
 
             var boost = 0;
             if (move.Rank == "Spy") boost = strategyData.BoostForSpy;

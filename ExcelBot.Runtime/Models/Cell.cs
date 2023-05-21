@@ -8,14 +8,14 @@
         public Point Coordinate { get; set; }
 
         public bool IsPiece => Owner != null;
-        public bool IsUnknownPiece => Owner != null && string.IsNullOrEmpty(Rank);
-        public bool IsKnownPiece => Owner != null && !string.IsNullOrEmpty(Rank);
+        public bool IsUnknownPiece => Owner != null && Rank == "?";
+        public bool IsKnownPiece => Owner != null && Rank != "?";
 
         public bool CanBeDefeatedBy(string attacker)
         {
             if (Owner == null) return false;
-            if (string.IsNullOrEmpty(Rank)) return false;
-            if (string.IsNullOrEmpty(attacker)) return false;
+            if (Rank == "?") return false;
+            if (attacker == "?") return false;
 
             if (Rank == "Flag") return true;
             if (Rank == "Bomb") return attacker == "Miner";
@@ -29,8 +29,8 @@
         public bool WillCauseDefeatFor(string attacker)
         {
             if (Owner == null) return false;
-            if (string.IsNullOrEmpty(Rank)) return false;
-            if (string.IsNullOrEmpty(attacker)) return false;
+            if (Rank == "?") return false;
+            if (attacker == "?") return false;
 
             if (Rank == "Flag") return false;
             if (Rank == "Bomb") return attacker != "Miner";

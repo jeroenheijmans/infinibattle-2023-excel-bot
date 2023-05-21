@@ -132,6 +132,7 @@ namespace ExcelBot.Tests
                 "ActivePlayer": 1,
                 "Board": [
                     { "Rank": "Scout", "Owner": 0, "Coordinate": { X: 0, Y: 0 } },
+                    { "Rank": "?", "Owner": 0, "Coordinate": { X: 1, Y: 0 } },
                     { "Rank": "Scout", "Owner": 1, "Coordinate": { X: 0, Y: 1 } }
                 ]
             }

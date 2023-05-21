@@ -15,6 +15,7 @@ namespace ExcelBot.Runtime.ExcelModels
         public int UnknownBattleOpponentHalfPoints { get; set; } = 0;
         public int BonusPointsForMoveTowardsOpponent { get; set; } = 0;
         public int BonusPointsForMoveWithinOpponentArea { get; set; } = 0;
+        public int BonusPointsForMovesGettingCloserToPotentialFlags { get; set; } = 0;
 
         public int FuzzynessFactor { get; set; } = 0;
 

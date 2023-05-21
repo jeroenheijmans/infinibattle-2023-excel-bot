@@ -40,9 +40,10 @@ namespace ExcelBot.Tests
             result.DecisiveVictoryPoints.Should().Be(250);
             result.DecisiveLossPoints.Should().Be(-1000);
             result.UnknownBattleOwnHalfPoints.Should().Be(-250);
-            result.UnknownBattleOpponentHalfPoints.Should().Be(500);
+            result.UnknownBattleOpponentHalfPoints.Should().Be(1000);
             result.BonusPointsForMoveTowardsOpponent.Should().Be(50);
             result.BonusPointsForMoveWithinOpponentArea.Should().Be(100);
+            result.BonusPointsForMovesGettingCloserToPotentialFlags.Should().Be(500);
 
             result.FuzzynessFactor.Should().Be(25);
 

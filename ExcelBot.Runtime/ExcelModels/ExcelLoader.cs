@@ -103,6 +103,7 @@ namespace ExcelBot.Runtime.ExcelModels
             excelStrategy.UnknownBattleOpponentHalfPoints = GetChanceValue("AT18");
             excelStrategy.BonusPointsForMoveTowardsOpponent = GetChanceValue("AT19");
             excelStrategy.BonusPointsForMoveWithinOpponentArea = GetChanceValue("AT20");
+            excelStrategy.BonusPointsForMovesGettingCloserToPotentialFlags = GetChanceValue("AT21");
 
             excelStrategy.FuzzynessFactor = GetChanceValue("AT24");
 
