@@ -83,19 +83,19 @@ namespace ExcelBot.Runtime
             return state.Board
                 .Where(c => c.Owner == MyColor) // only my pieces can be moved
                 .SelectMany(c => GetPossibleMovesFor(c, state)) // all options from all starting points
-                .OrderBy(_ => Guid.NewGuid()) // Quick and dirty Shuffle()
+                .OrderByDescending(move => move.Score)
                 .First();
         }
 
-        private IEnumerable<Move> GetPossibleMovesFor(Cell origin, GameState state)
+        private IEnumerable<MoveWithDetails> GetPossibleMovesFor(Cell origin, GameState state)
         {
-            if (origin.Rank == "Flag" || origin.Rank == "Bomb") return Enumerable.Empty<Move>();
+            if (origin.Rank == "Flag" || origin.Rank == "Bomb") return Enumerable.Empty<MoveWithDetails>();
 
             var deltas = new Point[] { new Point(-1, 0), new Point(+1, 0), new Point(0, -1), new Point(0, +1) };
 
             return deltas.SelectMany(delta =>
             {
-                var result = new List<Move>();
+                var result = new List<MoveWithDetails>();
                 var steps = 0;
                 var target = origin.Coordinate;
                 while (steps++ < 1 || origin.Rank == "Scout")
@@ -106,12 +106,44 @@ namespace ExcelBot.Runtime
                     if (targetCell.IsWater) break; // Water ends our options
                     if (targetCell.Owner == MyColor) break; // Own pieces block the path
 
-                    result.Add(new Move { From = origin.Coordinate, To = target });
+                    var move = new MoveWithDetails
+                    {
+                        From = origin.Coordinate,
+                        To = target,
+                        WillBeDecisiveVictory = targetCell.IsKnownPiece && targetCell.CanBeDefeatedBy(origin.Rank),
+                        WillBeDecisiveLoss = targetCell.IsKnownPiece && targetCell.WillCauseDefeatFor(origin.Rank),
+                        WillBeUnknownBattle = targetCell.IsUnknownPiece,
+                        IsBattleOnOwnHalf = targetCell.IsPiece && targetCell.IsOnOwnHalf(MyColor),
+                        IsBattleOnOpponentHalf = targetCell.IsPiece && targetCell.IsOnOpponentHalf(MyColor),
+                        IsMoveTowardsOpponentHalf = IsMoveTowardsOpponentHalf(origin.Coordinate, target),
+                    };
+
+                    SetScoreForMove(move);
+
+                    result.Add(move);
 
                     if (targetCell.Owner != null) break; // Can't jump over pieces, so this stops the line
                 }
                 return result;
             });
+        }
+
+        private bool IsMoveTowardsOpponentHalf(Point from, Point to) =>
+            MyColor == Player.Red
+                ? to.Y > 5 || to.Y > from.Y
+                : to.Y < 4 || to.Y < from.Y;
+
+        private void SetScoreForMove(MoveWithDetails move)
+        {
+            if (move.WillBeDecisiveVictory) move.Score += 100;
+            if (move.WillBeDecisiveLoss) move.Score += -10000;
+            if (move.WillBeUnknownBattle && move.IsBattleOnOwnHalf) move.Score += -50;
+            if (move.WillBeUnknownBattle && move.IsBattleOnOpponentHalf) move.Score += +250;
+            if (move.IsMoveTowardsOpponentHalf) move.Score += 25;
+
+            double fuzzynessMultiplier = random.Next(strategyData.FuzzynessFactor) + 100;
+
+            move.Score *= fuzzynessMultiplier / 100;
         }
 
         private void ProcessOpponentMove(GameState state)

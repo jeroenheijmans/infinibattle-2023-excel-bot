@@ -140,7 +140,7 @@ namespace ExcelBot.Tests
             var result = strategy.Process(state);
 
             result.Should()
-                .BeOfType<Move>()
+                .BeAssignableTo<Move>()
                 .And.Match<Move>(m => m.From.X == 0)
                 .And.Match<Move>(m => m.From.Y == 1)
                 .And.Match<Move>(m => m.To.X != 0 || m.To.Y != 1);

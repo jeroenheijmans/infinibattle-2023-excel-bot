@@ -8,6 +8,7 @@ namespace ExcelBot.Runtime.ExcelModels
         public ICollection<FixedStartGrid> FixedStartGrids { get; set; } = new List<FixedStartGrid>();
 
         public int ChanceAtFixedStartingPosition { get; set; } = 0;
+        public int FuzzynessFactor { get; set; } = 40; // TODO: From Excel
 
         // TODO: Unit tests
         public void TransposeAll()
