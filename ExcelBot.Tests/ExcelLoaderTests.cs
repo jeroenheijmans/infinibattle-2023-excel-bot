@@ -29,5 +29,12 @@ namespace ExcelBot.Tests
                 g.StartingPositions.Should().HaveCount(8)
             );
         }
+
+        [Fact]
+        public void Can_load_strategy_variables()
+        {
+            var result = ExcelLoader.Load("strategy.xlsx");
+            result.ChanceAtFixedStartingPosition.Should().BeGreaterThan(0);
+        }
     }
 }

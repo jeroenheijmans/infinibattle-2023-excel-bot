@@ -1,6 +1,7 @@
 using ExcelBot.Runtime.ExcelModels;
 using ExcelBot.Runtime.Models;
 using ExcelBot.Runtime;
+using Xunit;
 
 namespace ExcelBot.Tests
 {
@@ -46,6 +47,61 @@ namespace ExcelBot.Tests
                 .And.OnlyHaveUniqueItems()
                 .And.OnlyContain(p => p.Position.Y > 5);
             result.Pieces.Select(p => p.Rank).Distinct().Should().HaveCount(7);
+        }
+
+        [Theory]
+        [InlineData("Flag", 0, 0)]
+        [InlineData("Bomb", 1, 0)]
+        [InlineData("Spy", 2, 1)]
+        [InlineData("Scout", 3, 1)]
+        [InlineData("Scout", 4, 2)]
+        [InlineData("Miner", 5, 2)]
+        [InlineData("General", 6, 3)]
+        [InlineData("Marshal", 7, 3)]
+        public void Initialization_can_set_fixed_start_for_each_piece_with_red(string rank, int x, int y)
+        {
+            var strategyData = new StrategyData().WithDefaults();
+            var strategy = new Strategy(new Random(123), strategyData);
+            var gameInit = GameInit.FromJson(""""
+            {
+                "You": 0,
+                "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
+            }
+            """");
+
+            strategyData.ChanceAtFixedStartingPosition = 100;
+
+            var result = strategy.initialize(gameInit);
+
+
+            result.Pieces.Should().Contain(p => p.Rank == rank && p.Position == new Point(x, y));
+        }
+
+        [Theory]
+        [InlineData("Flag", 0, 0)]
+        [InlineData("Bomb", 1, 0)]
+        [InlineData("Spy", 2, 1)]
+        [InlineData("Scout", 3, 1)]
+        [InlineData("Scout", 4, 2)]
+        [InlineData("Miner", 5, 2)]
+        [InlineData("General", 6, 3)]
+        [InlineData("Marshal", 7, 3)]
+        public void Initialization_can_set_fixed_start_for_each_piece_with_blue(string rank, int x, int y)
+        {
+            var strategyData = new StrategyData().WithDefaults();
+            var strategy = new Strategy(new Random(123), strategyData);
+            var gameInit = GameInit.FromJson(""""
+            {
+                "You": 1,
+                "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
+            }
+            """");
+
+            strategyData.ChanceAtFixedStartingPosition = 100;
+
+            var result = strategy.initialize(gameInit);
+
+            result.Pieces.Should().Contain(p => p.Rank == rank && p.Position == new Point(x, y).Transpose());
         }
 
         [Fact]
@@ -98,6 +154,18 @@ namespace ExcelBot.Tests
             "Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"
         };
 
+        internal static readonly IList<(string, Point)> DefaultFixedStartingPositions = new List<(string, Point)>()
+        {
+            ("Flag", new Point(0, 0)),
+            ("Bomb", new Point(1, 0)),
+            ("Spy", new Point(2, 1)),
+            ("Scout", new Point(3, 1)),
+            ("Scout", new Point(4, 2)),
+            ("Miner", new Point(5, 2)),
+            ("General", new Point(6, 3)),
+            ("Marshal", new Point(7, 3)),
+        };
+
         public static StrategyData WithDefaults(this StrategyData data)
         {
             data.StartPositionGrids = allRanks.Select(rank =>
@@ -110,6 +178,12 @@ namespace ExcelBot.Tests
                 return grid;
             }
             ).ToList();
+
+            data.FixedStartGrids.Clear();
+            data.FixedStartGrids.Add(new FixedStartGrid
+            {
+                StartingPositions = DefaultFixedStartingPositions
+            });
 
             return data;
         }

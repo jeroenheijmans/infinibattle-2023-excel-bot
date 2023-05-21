@@ -25,6 +25,29 @@ namespace ExcelBot.Runtime
 
             if (MyColor == Player.Blue) strategyData.TransposeAll();
 
+            var pieces = random.Next(100) < strategyData.ChanceAtFixedStartingPosition
+                ? SetupBoardFromFixedPosition()
+                : SetupBoardWithProbabilities();
+
+            return new BoardSetup { Pieces = pieces.ToArray() };
+        }
+
+        private IEnumerable<Piece> SetupBoardFromFixedPosition()
+        {
+            return strategyData.FixedStartGrids
+                .OrderBy(_ => Guid.NewGuid()) // quick and dirty shuffle
+                .First()
+                .StartingPositions
+                .Select(tuple => new Piece
+                {
+                    Rank = tuple.Item1,
+                    Position = tuple.Item2
+                })
+                .ToList();
+        }
+
+        private IEnumerable<Piece> SetupBoardWithProbabilities()
+        {
             var pieces = new List<Piece>();
 
             foreach (var grid in strategyData.StartPositionGrids)
@@ -39,7 +62,7 @@ namespace ExcelBot.Runtime
                 }
             }
 
-            return new BoardSetup { Pieces = pieces.ToArray() };
+            return pieces;
         }
 
         public Move? Process(GameState state)

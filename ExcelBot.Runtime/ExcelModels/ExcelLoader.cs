@@ -1,6 +1,5 @@
 ﻿using ExcelBot.Runtime.Models;
 using GemBox.Spreadsheet;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace ExcelBot.Runtime.ExcelModels
@@ -89,6 +88,14 @@ namespace ExcelBot.Runtime.ExcelModels
                     excelStrategy.FixedStartGrids.Add(grid);
                 }
             }
+
+            // Load strategy variables
+            int GetChanceValue(string reference)
+            {
+                var cell = sheet.Cells[reference];
+                return cell.ValueType == CellValueType.Int ? cell.IntValue : 0;
+            }
+            excelStrategy.ChanceAtFixedStartingPosition = GetChanceValue("AT5");
 
             return excelStrategy;
         }
