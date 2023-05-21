@@ -1,7 +1,7 @@
-﻿using ExcelBot.Models;
+﻿using ExcelBot.Runtime.Models;
 using GemBox.Spreadsheet;
 
-namespace ExcelBot.ExcelModels
+namespace ExcelBot.Runtime.ExcelModels
 {
     public static class ExcelLoader
     {

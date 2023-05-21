@@ -1,4 +1,4 @@
-﻿using ExcelBot.ExcelModels;
+﻿using ExcelBot.Runtime.ExcelModels;
 
 namespace ExcelBot.Tests
 {

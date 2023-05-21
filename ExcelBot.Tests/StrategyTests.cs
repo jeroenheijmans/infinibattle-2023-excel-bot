@@ -1,5 +1,6 @@
-using ExcelBot.ExcelModels;
-using ExcelBot.Models;
+using ExcelBot.Runtime.ExcelModels;
+using ExcelBot.Runtime.Models;
+using ExcelBot.Runtime;
 
 namespace ExcelBot.Tests
 {

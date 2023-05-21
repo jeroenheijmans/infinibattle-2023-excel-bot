@@ -1,6 +1,9 @@
-﻿using ExcelBot.Models;
+﻿using ExcelBot.Runtime.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace ExcelBot.ExcelModels
+namespace ExcelBot.Runtime.ExcelModels
 {
     public class StartPositionGrid
     {

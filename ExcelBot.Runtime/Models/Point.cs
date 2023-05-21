@@ -1,4 +1,6 @@
-﻿namespace ExcelBot.Models
+﻿using System;
+
+namespace ExcelBot.Runtime.Models
 {
     public struct Point
     {

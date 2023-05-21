@@ -1,8 +1,10 @@
-﻿using ExcelBot.ExcelModels;
-using ExcelBot.Models;
+﻿using ExcelBot.Runtime.ExcelModels;
+using ExcelBot.Runtime.Models;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace ExcelBot
+namespace ExcelBot.Runtime
 {
     public class Strategy
     {
@@ -33,6 +35,7 @@ namespace ExcelBot
                     var piece = grid.PickStartingPosition(random.Next());
                     if (pieces.Any(x => x.Position == piece.Position)) continue;
                     pieces.Add(piece);
+                    break;
                 }
             }
 

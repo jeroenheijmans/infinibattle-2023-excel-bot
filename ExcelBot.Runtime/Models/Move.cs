@@ -1,4 +1,4 @@
-﻿namespace ExcelBot.Models
+﻿namespace ExcelBot.Runtime.Models
 {
     public class Move
     {

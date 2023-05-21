@@ -1,4 +1,6 @@
-﻿namespace ExcelBot.ExcelModels
+﻿using System.Collections.Generic;
+
+namespace ExcelBot.Runtime.ExcelModels
 {
     public class StrategyData
     {
