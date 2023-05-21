@@ -19,5 +19,15 @@ namespace ExcelBot.Tests
             grid.Should().NotBeNull();
             grid?.Probabilities.Should().Contain(p => p.Value > 0);
         }
+
+        [Fact]
+        public void Can_load_fixed_grids()
+        {
+            var result = ExcelLoader.Load("strategy.xlsx");
+            result.FixedStartGrids.Should().HaveCount(2);
+            result.FixedStartGrids.Should().AllSatisfy(g =>
+                g.StartingPositions.Should().HaveCount(8)
+            );
+        }
     }
 }

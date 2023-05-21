@@ -5,6 +5,8 @@ namespace ExcelBot.Runtime.ExcelModels
     public class StrategyData
     {
         public ICollection<StartPositionGrid> StartPositionGrids { get; set; } = new List<StartPositionGrid>();
+        public ICollection<FixedStartGrid> FixedStartGrids { get; set; } = new List<FixedStartGrid>();
+        // TODO: Strategy Variables
 
         // TODO: Unit tests
         public void TransposeAll()
@@ -15,7 +17,5 @@ namespace ExcelBot.Runtime.ExcelModels
             }
         }
 
-        // TODO: Fixed Starting Positions
-        // TODO: Strategy Variables
     }
 }
