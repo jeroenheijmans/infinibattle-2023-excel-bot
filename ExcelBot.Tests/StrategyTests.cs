@@ -100,10 +100,13 @@ namespace ExcelBot.Tests
 
         public static StrategyData WithDefaults(this StrategyData data)
         {
-            data.StartPositionGrids = allRanks.Select((rank, idx) =>
+            data.StartPositionGrids = allRanks.Select(rank =>
             {
                 var grid = new StartPositionGrid { Rank = rank };
-                grid.Probabilities.Add(new Point(idx, 0), 100);
+                for (int col = 0; col < 10; col++)
+                {
+                    grid.Probabilities.Add(new Point(col, 0), 100);
+                }
                 return grid;
             }
             ).ToList();
