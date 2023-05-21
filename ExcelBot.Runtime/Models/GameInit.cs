@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
+using System;
 
-namespace ExcelBot.Models
+namespace ExcelBot.Runtime.Models
 {
     public class GameInit
     {

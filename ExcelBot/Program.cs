@@ -1,11 +1,11 @@
-﻿using ExcelBot;
-using ExcelBot.ExcelModels;
-using ExcelBot.Models;
+﻿using ExcelBot.Runtime.ExcelModels;
+using ExcelBot.Runtime.Models;
+using ExcelBot.Runtime;
 using Newtonsoft.Json;
 
 var random = new Random();
-var strategy = new Strategy(random);
-var sheet = ExcelLoader.Load("strategy.xlsx");
+var strategyData = ExcelLoader.Load("strategy.xlsx");
+var strategy = new Strategy(random, strategyData);
 
 Console.WriteLine("bot-start");
 

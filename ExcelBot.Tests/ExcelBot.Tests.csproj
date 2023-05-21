@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	  <LangVersion>11.0</LangVersion>
+    <LangVersion>11.0</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ExcelBot.Runtime\ExcelBot.Runtime.csproj" />
     <ProjectReference Include="..\ExcelBot\ExcelBot.csproj" />
   </ItemGroup>
 

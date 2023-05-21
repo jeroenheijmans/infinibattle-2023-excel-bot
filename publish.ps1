@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 $APIKEY = Get-Content apiKey
 $BASEURL = "https://infinibattle.infi.nl"
 $CONFIGURATION = "Release"
-$binDirectory = "$($csprojFolder)\bin\$($CONFIGURATION)"
+$binDirectory = "$($csprojFolder)\bin\$($CONFIGURATION)\net6.0"
 $zipPath = "$($PSScriptRoot)\publish.zip"
 
 # Build the bot
@@ -15,7 +15,7 @@ dotnet build --configuration $CONFIGURATION
 if (Test-Path $zipPath) { Remove-Item ($zipPath) }
 
 # Compress DLLs to zip file
-Get-ChildItem -Path $binDirectory -Recurse | Compress-Archive -DestinationPath $zipPath
+Get-ChildItem -Path $binDirectory -Exclude runtimes | Compress-Archive -DestinationPath $zipPath
 
 # Upload new zip file
 $uploadUrl = "$($BASEURL)/api/uploadBot/$($APIKEY)"
