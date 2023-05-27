@@ -12,12 +12,22 @@ namespace ExcelBot.Tests
         [InlineData("Marshal")]
         [InlineData("Spy")]
         [InlineData("General")]
-        public void Can_load_flag_grid(string Rank)
+        public void Can_load_grid_for(string Rank)
         {
             var result = ExcelLoader.Load("strategy.xlsx");
             var grid = result.StartPositionGrids.FirstOrDefault(p => p.Rank == Rank);
             grid.Should().NotBeNull();
             grid?.Probabilities.Should().Contain(p => p.Value > 0);
+        }
+
+        [Fact]
+        public void Can_load_grid_for_scout_smoke_test()
+        {
+            var result = ExcelLoader.Load("strategy.xlsx");
+            var grid = result.StartPositionGrids.FirstOrDefault(p => p.Rank == "Scout");
+            grid.Should().NotBeNull();
+            grid?.Probabilities.Should().Contain(p => p.Value > 0);
+            grid.Probabilities.Where(p => p.Value == 100).Should().HaveCount(10);
         }
 
         [Fact]
@@ -44,8 +54,9 @@ namespace ExcelBot.Tests
             result.BonusPointsForMoveTowardsOpponent.Should().Be(50);
             result.BonusPointsForMoveWithinOpponentArea.Should().Be(100);
             result.BonusPointsForMovesGettingCloserToPotentialFlags.Should().Be(500);
+            result.ScoutJumpsToPotentialFlagsMultiplication.Should().Be(true);
 
-            result.FuzzynessFactor.Should().Be(25);
+            result.FuzzynessFactor.Should().Be(5);
 
             result.BoostForSpy.Should().Be(0);
             result.BoostForScout.Should().Be(5);

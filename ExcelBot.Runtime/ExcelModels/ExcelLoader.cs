@@ -8,22 +8,22 @@ namespace ExcelBot.Runtime.ExcelModels
     {
         private static readonly (int, int, string)[] ProbabilitiesGridLocations = new[]
         {
-            ( 2,  1, "Flag"),
-            (14,  1, "Bomb"),
-            ( 2, 12, "Scout"),
-            (14, 12, "Miner"),
-            ( 2, 23, "Scout"),
-            (14, 23, "Marshal"),
-            ( 2, 34, "General"),
-            (14, 34, "Spy"),
+            ( 2,  2, "Flag"),
+            (14,  2, "Bomb"),
+            ( 2, 13, "Scout"),
+            (14, 13, "Miner"),
+            ( 2, 24, "Scout"),
+            (14, 24, "Marshal"),
+            ( 2, 35, "General"),
+            (14, 35, "Spy"),
         };
 
         private static readonly (int, int)[] FixedStartGridLocations = new[]
         {
-            (26,  1),
-            (26, 12),
-            (26, 23),
-            (26, 34),
+            (27,  2),
+            (27, 13),
+            (27, 24),
+            (27, 35),
         };
 
         private static readonly IDictionary<string, string> RankShorthands = new Dictionary<string, string>
@@ -95,23 +95,31 @@ namespace ExcelBot.Runtime.ExcelModels
                 var cell = sheet.Cells[reference];
                 return cell.ValueType == CellValueType.Int ? cell.IntValue : 0;
             }
-            excelStrategy.ChanceAtFixedStartingPosition = GetChanceValue("AT3");
 
-            excelStrategy.DecisiveVictoryPoints = GetChanceValue("AT15");
-            excelStrategy.DecisiveLossPoints = GetChanceValue("AT16");
-            excelStrategy.UnknownBattleOwnHalfPoints = GetChanceValue("AT17");
-            excelStrategy.UnknownBattleOpponentHalfPoints = GetChanceValue("AT18");
-            excelStrategy.BonusPointsForMoveTowardsOpponent = GetChanceValue("AT19");
-            excelStrategy.BonusPointsForMoveWithinOpponentArea = GetChanceValue("AT20");
-            excelStrategy.BonusPointsForMovesGettingCloserToPotentialFlags = GetChanceValue("AT21");
+            bool GetBoolValue(string reference)
+            {
+                var cell = sheet.Cells[reference];
+                return cell.ValueType == CellValueType.Bool ? cell.BoolValue : false;
+            }
 
-            excelStrategy.FuzzynessFactor = GetChanceValue("AT24");
+            excelStrategy.ChanceAtFixedStartingPosition = GetChanceValue("AV3");
 
-            excelStrategy.BoostForSpy = GetChanceValue("AT27");
-            excelStrategy.BoostForScout = GetChanceValue("AT28");
-            excelStrategy.BoostForMiner = GetChanceValue("AT29");
-            excelStrategy.BoostForGeneral = GetChanceValue("AT30");
-            excelStrategy.BoostForMarshal = GetChanceValue("AT31");
+            excelStrategy.DecisiveVictoryPoints = GetChanceValue("AV15");
+            excelStrategy.DecisiveLossPoints = GetChanceValue("AV16");
+            excelStrategy.UnknownBattleOwnHalfPoints = GetChanceValue("AV17");
+            excelStrategy.UnknownBattleOpponentHalfPoints = GetChanceValue("AV18");
+            excelStrategy.BonusPointsForMoveTowardsOpponent = GetChanceValue("AV19");
+            excelStrategy.BonusPointsForMoveWithinOpponentArea = GetChanceValue("AV20");
+            excelStrategy.BonusPointsForMovesGettingCloserToPotentialFlags = GetChanceValue("AV21");
+            excelStrategy.ScoutJumpsToPotentialFlagsMultiplication = GetBoolValue("AV22");
+
+            excelStrategy.FuzzynessFactor = GetChanceValue("AV24");
+
+            excelStrategy.BoostForSpy = GetChanceValue("AV28");
+            excelStrategy.BoostForScout = GetChanceValue("AV29");
+            excelStrategy.BoostForMiner = GetChanceValue("AV30");
+            excelStrategy.BoostForGeneral = GetChanceValue("AV31");
+            excelStrategy.BoostForMarshal = GetChanceValue("AV32");
 
             return excelStrategy;
         }

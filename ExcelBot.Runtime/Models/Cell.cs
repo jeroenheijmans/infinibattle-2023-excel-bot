@@ -54,5 +54,10 @@
                 ? Coordinate.Y < 4
                 : Coordinate.Y > 5;
         }
+
+        public bool IsOpponentPiece(Player myColor)
+        {
+            return Owner.HasValue && Owner.Value != myColor;
+        }
     }
 }

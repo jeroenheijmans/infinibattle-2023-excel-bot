@@ -12,6 +12,7 @@ namespace ExcelBot.Runtime.Models
     {
         [JsonIgnore] public string Rank { get; set; } = "";
 
+        [JsonIgnore] public int Steps { get; set; } = 1;
         [JsonIgnore] public bool WillBeDecisiveVictory { get; set; }
         [JsonIgnore] public bool WillBeDecisiveLoss { get; set; }
         [JsonIgnore] public bool WillBeUnknownBattle { get; set; }

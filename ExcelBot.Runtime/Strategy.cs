@@ -1,5 +1,6 @@
 ﻿using ExcelBot.Runtime.ExcelModels;
 using ExcelBot.Runtime.Models;
+using ExcelBot.Runtime.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,10 @@ namespace ExcelBot.Runtime
 {
     public class Strategy
     {
+        private bool hasInitialized = false;
         private readonly Random random;
         private readonly StrategyData strategyData;
+        private readonly ISet<Point> possibleFlagCoordinates = new HashSet<Point>();
 
         public Strategy(Random random, StrategyData strategyData)
         {
@@ -23,13 +26,32 @@ namespace ExcelBot.Runtime
         {
             MyColor = data.You;
 
+            FillPossibleFlagCoordinates();
+
             if (MyColor == Player.Blue) strategyData.TransposeAll();
 
             var pieces = random.Next(100) < strategyData.ChanceAtFixedStartingPosition
                 ? SetupBoardFromFixedPosition()
                 : SetupBoardWithProbabilities();
 
+            hasInitialized = true;
+
             return new BoardSetup { Pieces = pieces.ToArray() };
+        }
+
+        private void FillPossibleFlagCoordinates()
+        {
+            for (int x = 0; x < 10; x++)
+            {
+                for (int y = 0; y < 4; y++)
+                {
+                    possibleFlagCoordinates.Add(
+                        MyColor == Player.Blue
+                        ? new Point(x, y)
+                        : new Point(x, y).Transpose()
+                    );
+                }
+            }
         }
 
         private IEnumerable<Piece> SetupBoardFromFixedPosition()
@@ -67,6 +89,11 @@ namespace ExcelBot.Runtime
 
         public Move? Process(GameState state)
         {
+            if (!hasInitialized)
+            {
+                throw new InvalidOperationException("Processing move before initialization is not possible");
+            }
+
             if (state.ActivePlayer == MyColor)
             {
                 return DecideNextMove(state);
@@ -121,6 +148,7 @@ namespace ExcelBot.Runtime
                         NetChangeInShortestPathToPotentialFlag =
                             GetShortestPathToPotentialFlag(state, target)
                             - GetShortestPathToPotentialFlag(state, origin.Coordinate),
+                        Steps = steps,
                     };
 
                     SetScoreForMove(move);
@@ -136,7 +164,7 @@ namespace ExcelBot.Runtime
         private int GetShortestPathToPotentialFlag(GameState state, Point source)
         {
             return state.Board
-                .Where(cell => cell.IsUnknownPiece && cell.IsOnOpponentHalf(MyColor))
+                .Where(cell => possibleFlagCoordinates.Contains(cell.Coordinate))
                 .Select(cell => cell.Coordinate.DistanceTo(source))
                 .Min();
         }
@@ -159,7 +187,12 @@ namespace ExcelBot.Runtime
             if (move.WillBeUnknownBattle && move.IsBattleOnOpponentHalf) move.Score += strategyData.UnknownBattleOpponentHalfPoints;
             if (move.IsMoveTowardsOpponentHalf) move.Score += strategyData.BonusPointsForMoveTowardsOpponent;
             if (move.IsMoveWithinOpponentHalf) move.Score += strategyData.BonusPointsForMoveWithinOpponentArea;
-            if (move.NetChangeInShortestPathToPotentialFlag < 0) move.Score += strategyData.BonusPointsForMovesGettingCloserToPotentialFlags;
+            
+            if (move.NetChangeInShortestPathToPotentialFlag < 0)
+                move.Score += strategyData.ScoutJumpsToPotentialFlagsMultiplication
+                    ? strategyData.BonusPointsForMovesGettingCloserToPotentialFlags * move.Steps
+                    : strategyData.BonusPointsForMovesGettingCloserToPotentialFlags;
+
 
             var boost = 0;
             if (move.Rank == "Spy") boost = strategyData.BoostForSpy;
@@ -177,7 +210,12 @@ namespace ExcelBot.Runtime
 
         private void ProcessOpponentMove(GameState state)
         {
-            // NO-OP for now, up to you to do something nice...
+            state.Board
+                .Where(c => !c.IsPiece || !c.IsUnknownPiece || !c.IsOnOpponentHalf(MyColor))
+                .ForEach(c => possibleFlagCoordinates.Remove(c.Coordinate));
+
+            if (state.LastMove != null) possibleFlagCoordinates.Remove(state.LastMove.To);
+            if (state.LastMove != null) possibleFlagCoordinates.Remove(state.LastMove.From);
         }
     }
 }

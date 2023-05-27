@@ -7,17 +7,25 @@ namespace ExcelBot.Tests
 {
     public class StrategyTests
     {
+        private const string gameInitForRed = """"
+        {
+            "You": 0,
+            "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
+        }
+        """";
+        private const string gameInitForBlue = """"
+        {
+            "You": 1,
+            "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
+        }
+        """";
+
         [Fact]
         public void Initialization_for_red_smoke_test_001()
         {
             var strategyData = new StrategyData().WithDefaults();
             var strategy = new Strategy(new Random(123), strategyData);
-            var gameInit = GameInit.FromJson(""""
-            {
-                "You": 0,
-                "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
-            }
-            """");
+            var gameInit = GameInit.FromJson(gameInitForRed);
 
             var result = strategy.initialize(gameInit);
 
@@ -33,12 +41,7 @@ namespace ExcelBot.Tests
         {
             var strategyData = new StrategyData().WithDefaults();
             var strategy = new Strategy(new Random(123), strategyData);
-            var gameInit = GameInit.FromJson(""""
-            {
-                "You": 1,
-                "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
-            }
-            """");
+            var gameInit = GameInit.FromJson(gameInitForBlue);
 
             var result = strategy.initialize(gameInit);
 
@@ -62,12 +65,7 @@ namespace ExcelBot.Tests
         {
             var strategyData = new StrategyData().WithDefaults();
             var strategy = new Strategy(new Random(123), strategyData);
-            var gameInit = GameInit.FromJson(""""
-            {
-                "You": 0,
-                "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
-            }
-            """");
+            var gameInit = GameInit.FromJson(gameInitForRed);
 
             strategyData.ChanceAtFixedStartingPosition = 100;
 
@@ -90,12 +88,7 @@ namespace ExcelBot.Tests
         {
             var strategyData = new StrategyData().WithDefaults();
             var strategy = new Strategy(new Random(123), strategyData);
-            var gameInit = GameInit.FromJson(""""
-            {
-                "You": 1,
-                "AvailablePieces": ["Scout", "Scout", "Bomb", "Flag", "Miner", "Marshal", "Spy", "General"]
-            }
-            """");
+            var gameInit = GameInit.FromJson(gameInitForBlue);
 
             strategyData.ChanceAtFixedStartingPosition = 100;
 
@@ -113,6 +106,7 @@ namespace ExcelBot.Tests
                 MyColor = Player.Red,
             };
             var state = new GameState { ActivePlayer = Player.Blue };
+            strategy.initialize(GameInit.FromJson(gameInitForRed));
 
             var result = strategy.Process(state);
 
@@ -127,12 +121,15 @@ namespace ExcelBot.Tests
             {
                 MyColor = Player.Blue,
             };
+
+            strategy.initialize(GameInit.FromJson(gameInitForBlue));
+
             var state = GameState.FromJson(""""
             {
                 "ActivePlayer": 1,
                 "Board": [
                     { "Rank": "Scout", "Owner": 0, "Coordinate": { X: 0, Y: 0 } },
-                    { "Rank": "?", "Owner": 0, "Coordinate": { X: 1, Y: 0 } },
+                    { "Rank": "?", "Owner": 0, "Coordinate": { X: 1, Y: 1 } },
                     { "Rank": "Scout", "Owner": 1, "Coordinate": { X: 0, Y: 1 } }
                 ]
             }
