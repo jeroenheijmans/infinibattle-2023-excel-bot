@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ExcelBot.Runtime.Models;
+using System.Collections.Generic;
 
 namespace ExcelBot.Runtime.ExcelModels
 {
@@ -6,6 +7,7 @@ namespace ExcelBot.Runtime.ExcelModels
     {
         public ICollection<StartPositionGrid> StartPositionGrids { get; set; } = new List<StartPositionGrid>();
         public ICollection<FixedStartGrid> FixedStartGrids { get; set; } = new List<FixedStartGrid>();
+        public IDictionary<Point, int> OpponentFlagProbabilities { get; set; } = new Dictionary<Point, int>();
 
         public int ChanceAtFixedStartingPosition { get; set; } = 0;
         
@@ -38,6 +40,13 @@ namespace ExcelBot.Runtime.ExcelModels
             {
                 grid.Transpose();
             }
+
+            var newProbabilities = new Dictionary<Point, int>();
+            foreach (var (point, value) in OpponentFlagProbabilities)
+            {
+                newProbabilities[point.Transpose()] = value;
+            }
+            OpponentFlagProbabilities = newProbabilities;
         }
 
     }

@@ -21,7 +21,7 @@ namespace ExcelBot.Runtime.Models
         [JsonIgnore] public bool IsMoveTowardsOpponentHalf { get; set; }
         [JsonIgnore] public bool IsMoveWithinOpponentHalf { get; set; }
 
-        [JsonIgnore] public int NetChangeInManhattanDistanceToPotentialFlag { get; set; }
+        [JsonIgnore] public double NetChangeInManhattanDistanceToPotentialFlag { get; set; }
 
         [JsonIgnore] public double Score { get; set; }
     }

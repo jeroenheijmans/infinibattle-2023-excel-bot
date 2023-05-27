@@ -23,8 +23,10 @@ namespace ExcelBot.Runtime.ExcelModels
             (27,  2),
             (27, 13),
             (27, 24),
-            (27, 35),
         };
+
+        private const int OpponentFlagProbabilitiesRow = 27;
+        private const int OpponentFlagProbabilitiesCol = 35;
 
         private static readonly IDictionary<string, string> RankShorthands = new Dictionary<string, string>
         {
@@ -86,6 +88,18 @@ namespace ExcelBot.Runtime.ExcelModels
                 if (grid.StartingPositions.Count == 8)
                 {
                     excelStrategy.FixedStartGrids.Add(grid);
+                }
+            }
+
+            // Load expected flag location probabilities
+            for (int i = 0; i < 10; i++)
+            {
+                for (int j = 6; j < 10; j++)
+                {
+                    var cell = sheet.Cells[OpponentFlagProbabilitiesRow + j, OpponentFlagProbabilitiesCol + i];
+                    var probability = cell.ValueType == CellValueType.Int ? cell.IntValue : 0;
+                    var pos = new Point(i, j);
+                    excelStrategy.OpponentFlagProbabilities.Add(pos, probability);
                 }
             }
 
