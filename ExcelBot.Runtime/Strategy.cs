@@ -145,9 +145,9 @@ namespace ExcelBot.Runtime
                         IsBattleOnOpponentHalf = targetCell.IsPiece && targetCell.IsOnOpponentHalf(MyColor),
                         IsMoveTowardsOpponentHalf = IsMoveTowardsOpponentHalf(origin.Coordinate, target),
                         IsMoveWithinOpponentHalf = IsMoveWithinOpponentHalf(origin.Coordinate, target),
-                        NetChangeInShortestPathToPotentialFlag =
-                            GetShortestPathToPotentialFlag(state, target)
-                            - GetShortestPathToPotentialFlag(state, origin.Coordinate),
+                        NetChangeInManhattanDistanceToPotentialFlag =
+                            GetSmallestManhattanDistanceToPotentialFlag(state, target)
+                            - GetSmallestManhattanDistanceToPotentialFlag(state, origin.Coordinate),
                         Steps = steps,
                     };
 
@@ -161,11 +161,18 @@ namespace ExcelBot.Runtime
             });
         }
 
-        private int GetShortestPathToPotentialFlag(GameState state, Point source)
+        private int GetSmallestManhattanDistanceToPotentialFlag(GameState state, Point source)
         {
+            // We'll dislike moving into "water" columns on our own half
+            // because that might block us on a path to the other's flag.
+            int penaltyFor(Point p) =>
+                Cell.IsOnOwnHalf(MyColor, p) && (p.X == 2 || p.X == 3 || p.X == 6 || p.X == 7)
+                ? 2
+                : 0;
+
             return state.Board
                 .Where(cell => possibleFlagCoordinates.Contains(cell.Coordinate))
-                .Select(cell => cell.Coordinate.DistanceTo(source))
+                .Select(cell => source.DistanceTo(cell.Coordinate) + penaltyFor(source))
                 .Min();
         }
 
@@ -188,9 +195,9 @@ namespace ExcelBot.Runtime
             if (move.IsMoveTowardsOpponentHalf) move.Score += strategyData.BonusPointsForMoveTowardsOpponent;
             if (move.IsMoveWithinOpponentHalf) move.Score += strategyData.BonusPointsForMoveWithinOpponentArea;
             
-            if (move.NetChangeInShortestPathToPotentialFlag < 0)
+            if (move.NetChangeInManhattanDistanceToPotentialFlag < 0)
                 move.Score += strategyData.ScoutJumpsToPotentialFlagsMultiplication
-                    ? strategyData.BonusPointsForMovesGettingCloserToPotentialFlags * move.Steps
+                    ? strategyData.BonusPointsForMovesGettingCloserToPotentialFlags * (move.Steps > 1 ? 2 : 1)
                     : strategyData.BonusPointsForMovesGettingCloserToPotentialFlags;
 
 
