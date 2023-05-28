@@ -20,6 +20,8 @@ namespace ExcelBot.Runtime.Models
         [JsonIgnore] public bool IsBattleOnOwnHalf { get; set; }
         [JsonIgnore] public bool IsMoveTowardsOpponentHalf { get; set; }
         [JsonIgnore] public bool IsMoveWithinOpponentHalf { get; set; }
+        [JsonIgnore] public bool IsMovingForFirstTime { get; set; }
+        [JsonIgnore] public bool IsMoveForUnrevealedPiece { get; set; }
 
         [JsonIgnore] public double NetChangeInManhattanDistanceToPotentialFlag { get; set; }
 

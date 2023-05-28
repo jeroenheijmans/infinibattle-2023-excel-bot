@@ -118,16 +118,18 @@ namespace ExcelBot.Runtime.ExcelModels
 
             excelStrategy.ChanceAtFixedStartingPosition = GetChanceValue("AV3");
 
-            excelStrategy.DecisiveVictoryPoints = GetChanceValue("AV15");
-            excelStrategy.DecisiveLossPoints = GetChanceValue("AV16");
-            excelStrategy.UnknownBattleOwnHalfPoints = GetChanceValue("AV17");
-            excelStrategy.UnknownBattleOpponentHalfPoints = GetChanceValue("AV18");
-            excelStrategy.BonusPointsForMoveTowardsOpponent = GetChanceValue("AV19");
-            excelStrategy.BonusPointsForMoveWithinOpponentArea = GetChanceValue("AV20");
-            excelStrategy.BonusPointsForMovesGettingCloserToPotentialFlags = GetChanceValue("AV21");
-            excelStrategy.ScoutJumpsToPotentialFlagsMultiplication = GetBoolValue("AV22");
+            excelStrategy.FuzzynessFactor = GetChanceValue("AV9");
 
-            excelStrategy.FuzzynessFactor = GetChanceValue("AV24");
+            excelStrategy.DecisiveVictoryPoints = GetChanceValue("AV10");
+            excelStrategy.DecisiveLossPoints = GetChanceValue("AV11");
+            excelStrategy.UnknownBattleOwnHalfPoints = GetChanceValue("AV12");
+            excelStrategy.UnknownBattleOpponentHalfPoints = GetChanceValue("AV13");
+            excelStrategy.BonusPointsForMoveTowardsOpponent = GetChanceValue("AV14");
+            excelStrategy.BonusPointsForMoveWithinOpponentArea = GetChanceValue("AV15");
+            excelStrategy.BonusPointsForMovesGettingCloserToPotentialFlags = GetChanceValue("AV16");
+            excelStrategy.ScoutJumpsToPotentialFlagsMultiplication = GetBoolValue("AV17");
+            excelStrategy.BonusPointsForMovingPieceForTheFirstTime = GetChanceValue("AV18");
+            excelStrategy.BonusPointsForMovingUnrevealedPiece = GetChanceValue("AV19");
 
             excelStrategy.BoostForSpy = GetChanceValue("AV28");
             excelStrategy.BoostForScout = GetChanceValue("AV29");

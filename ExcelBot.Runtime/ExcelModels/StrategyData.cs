@@ -18,6 +18,8 @@ namespace ExcelBot.Runtime.ExcelModels
         public int BonusPointsForMoveTowardsOpponent { get; set; } = 0;
         public int BonusPointsForMoveWithinOpponentArea { get; set; } = 0;
         public int BonusPointsForMovesGettingCloserToPotentialFlags { get; set; } = 0;
+        public int BonusPointsForMovingPieceForTheFirstTime { get; set; } = 0;
+        public int BonusPointsForMovingUnrevealedPiece { get; set; } = 0;
         public bool ScoutJumpsToPotentialFlagsMultiplication { get; set; } = false;
 
         public int FuzzynessFactor { get; set; } = 0;
