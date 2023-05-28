@@ -9,7 +9,6 @@ namespace ExcelBot.Runtime
 {
     public class Strategy
     {
-        private bool hasInitialized = false;
         private readonly Random random;
         private readonly StrategyData strategyData;
         private readonly SetupStrategy setupStrategy;
@@ -17,15 +16,16 @@ namespace ExcelBot.Runtime
         private readonly ISet<Point> unmovedOwnPieceCoordinates = new HashSet<Point>();
         private readonly ISet<Point> unrevealedOwnPieceCoordinates = new HashSet<Point>();
 
+        private bool hasInitialized = false;
+        private Player MyColor { get; set; }
+        private Player OpponentColor { get; set; }
+
         public Strategy(Random random, StrategyData strategyData)
         {
             this.random = random;
             this.strategyData = strategyData;
             this.setupStrategy = new SetupStrategy(strategyData, random);
         }
-
-        public Player MyColor { get; set; }
-        public Player OpponentColor { get; set; }
 
         public BoardSetup Initialize(GameInit data)
         {
@@ -68,9 +68,10 @@ namespace ExcelBot.Runtime
         {
             var move = state.Board
                 .Where(c => c.Owner == MyColor)
-                .SelectMany(c => GetPossibleMovesFor(c, state))
-                .OrderByDescending(move => move.Score)
-                .First();
+                .SelectMany(c => GetMoveOptionsFor(c, state))
+                .OrderByDescending(choice => choice.Score)
+                .First()
+                .ToMove();
 
             unmovedOwnPieceCoordinates.Remove(move.From);
 
@@ -86,11 +87,11 @@ namespace ExcelBot.Runtime
             return move;
         }
 
-        private IEnumerable<MoveWithDetails> GetPossibleMovesFor(Cell origin, GameState state)
+        private IEnumerable<MoveOption> GetMoveOptionsFor(Cell origin, GameState state)
         {
             if (origin.Rank == "Flag" || origin.Rank == "Bomb")
             {
-                return Enumerable.Empty<MoveWithDetails>();
+                return Enumerable.Empty<MoveOption>();
             }
 
             var deltas = new Point[]
@@ -103,7 +104,7 @@ namespace ExcelBot.Runtime
 
             return deltas.SelectMany(delta =>
             {
-                var result = new List<MoveWithDetails>();
+                var result = new List<MoveOption>();
                 var steps = 0;
                 var target = origin.Coordinate;
 
@@ -116,7 +117,7 @@ namespace ExcelBot.Runtime
                     if (targetCell.IsWater) break; // Water ends our options
                     if (targetCell.Owner == MyColor) break; // Own pieces block the path
 
-                    var move = new MoveWithDetails
+                    var move = new MoveOption
                     {
                         From = origin.Coordinate,
                         To = target,

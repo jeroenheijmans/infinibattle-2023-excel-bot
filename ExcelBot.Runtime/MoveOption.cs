@@ -1,28 +1,30 @@
 ﻿using ExcelBot.Runtime.ExcelModels;
 using ExcelBot.Runtime.Models;
-using Newtonsoft.Json;
 using System;
 
 namespace ExcelBot.Runtime
 {
-    public class MoveWithDetails : Move
+    public class MoveOption
     {
-        [JsonIgnore] public string Rank { get; set; } = "";
+        public Point From { get; set; }
+        public Point To { get; set; }
 
-        [JsonIgnore] public int Steps { get; set; } = 1;
-        [JsonIgnore] public bool WillBeDecisiveVictory { get; set; }
-        [JsonIgnore] public bool WillBeDecisiveLoss { get; set; }
-        [JsonIgnore] public bool WillBeUnknownBattle { get; set; }
-        [JsonIgnore] public bool IsBattleOnOpponentHalf { get; set; }
-        [JsonIgnore] public bool IsBattleOnOwnHalf { get; set; }
-        [JsonIgnore] public bool IsMoveTowardsOpponentHalf { get; set; }
-        [JsonIgnore] public bool IsMoveWithinOpponentHalf { get; set; }
-        [JsonIgnore] public bool IsMovingForFirstTime { get; set; }
-        [JsonIgnore] public bool IsMoveForUnrevealedPiece { get; set; }
+        public string Rank { get; set; } = "";
 
-        [JsonIgnore] public double NetChangeInManhattanDistanceToPotentialFlag { get; set; }
+        public int Steps { get; set; } = 1;
+        public bool WillBeDecisiveVictory { get; set; }
+        public bool WillBeDecisiveLoss { get; set; }
+        public bool WillBeUnknownBattle { get; set; }
+        public bool IsBattleOnOpponentHalf { get; set; }
+        public bool IsBattleOnOwnHalf { get; set; }
+        public bool IsMoveTowardsOpponentHalf { get; set; }
+        public bool IsMoveWithinOpponentHalf { get; set; }
+        public bool IsMovingForFirstTime { get; set; }
+        public bool IsMoveForUnrevealedPiece { get; set; }
 
-        [JsonIgnore] public double Score { get; set; }
+        public double NetChangeInManhattanDistanceToPotentialFlag { get; set; }
+
+        public double Score { get; set; }
 
         public void CalculateScore(StrategyData strategyData, Random random)
         {
@@ -53,6 +55,15 @@ namespace ExcelBot.Runtime
 
             double fuzzynessMultiplier = random.Next(strategyData.FuzzynessFactor) + 100;
             Score *= fuzzynessMultiplier / 100;
+        }
+
+        public Move ToMove()
+        {
+            return new Move
+            {
+                From = From,
+                To = To,
+            };
         }
     }
 }

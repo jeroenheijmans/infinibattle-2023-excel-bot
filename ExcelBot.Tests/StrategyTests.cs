@@ -101,10 +101,7 @@ namespace ExcelBot.Tests
         public void Process_returns_null_if_not_your_turn()
         {
             var strategyData = new StrategyData().WithDefaults();
-            var strategy = new Strategy(new Random(123), strategyData)
-            {
-                MyColor = Player.Red,
-            };
+            var strategy = new Strategy(new Random(123), strategyData);
             var state = new GameState { ActivePlayer = Player.Blue };
             strategy.Initialize(GameInit.FromJson(gameInitForRed));
 
@@ -117,11 +114,7 @@ namespace ExcelBot.Tests
         public void Process_returns_move_smoke_test_001()
         {
             var strategyData = new StrategyData().WithDefaults();
-            var strategy = new Strategy(new Random(123), strategyData)
-            {
-                MyColor = Player.Blue,
-            };
-
+            var strategy = new Strategy(new Random(123), strategyData);
             strategy.Initialize(GameInit.FromJson(gameInitForBlue));
 
             var state = GameState.FromJson(""""
