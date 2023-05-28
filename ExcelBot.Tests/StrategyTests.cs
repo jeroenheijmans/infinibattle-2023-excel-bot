@@ -27,7 +27,7 @@ namespace ExcelBot.Tests
             var strategy = new Strategy(new Random(123), strategyData);
             var gameInit = GameInit.FromJson(gameInitForRed);
 
-            var result = strategy.initialize(gameInit);
+            var result = strategy.Initialize(gameInit);
 
             result.Pieces
                 .Should().HaveCount(8)
@@ -43,7 +43,7 @@ namespace ExcelBot.Tests
             var strategy = new Strategy(new Random(123), strategyData);
             var gameInit = GameInit.FromJson(gameInitForBlue);
 
-            var result = strategy.initialize(gameInit);
+            var result = strategy.Initialize(gameInit);
 
             result.Pieces
                 .Should().HaveCount(8)
@@ -69,7 +69,7 @@ namespace ExcelBot.Tests
 
             strategyData.ChanceAtFixedStartingPosition = 100;
 
-            var result = strategy.initialize(gameInit);
+            var result = strategy.Initialize(gameInit);
 
 
             result.Pieces.Should().Contain(p => p.Rank == rank && p.Position == new Point(x, y));
@@ -92,7 +92,7 @@ namespace ExcelBot.Tests
 
             strategyData.ChanceAtFixedStartingPosition = 100;
 
-            var result = strategy.initialize(gameInit);
+            var result = strategy.Initialize(gameInit);
 
             result.Pieces.Should().Contain(p => p.Rank == rank && p.Position == new Point(x, y).Transpose());
         }
@@ -106,7 +106,7 @@ namespace ExcelBot.Tests
                 MyColor = Player.Red,
             };
             var state = new GameState { ActivePlayer = Player.Blue };
-            strategy.initialize(GameInit.FromJson(gameInitForRed));
+            strategy.Initialize(GameInit.FromJson(gameInitForRed));
 
             var result = strategy.Process(state);
 
@@ -122,7 +122,7 @@ namespace ExcelBot.Tests
                 MyColor = Player.Blue,
             };
 
-            strategy.initialize(GameInit.FromJson(gameInitForBlue));
+            strategy.Initialize(GameInit.FromJson(gameInitForBlue));
 
             var state = GameState.FromJson(""""
             {

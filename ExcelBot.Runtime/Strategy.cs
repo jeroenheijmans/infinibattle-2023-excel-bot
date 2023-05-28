@@ -12,6 +12,7 @@ namespace ExcelBot.Runtime
         private bool hasInitialized = false;
         private readonly Random random;
         private readonly StrategyData strategyData;
+        private readonly SetupStrategy setupStrategy;
         private readonly ISet<Point> possibleFlagCoordinates = new HashSet<Point>();
         private readonly ISet<Point> unmovedOwnPieceCoordinates = new HashSet<Point>();
         private readonly ISet<Point> unrevealedOwnPieceCoordinates = new HashSet<Point>();
@@ -20,77 +21,29 @@ namespace ExcelBot.Runtime
         {
             this.random = random;
             this.strategyData = strategyData;
+            this.setupStrategy = new SetupStrategy(strategyData, random);
         }
 
         public Player MyColor { get; set; }
         public Player OpponentColor { get; set; }
 
-        public BoardSetup initialize(GameInit data)
+        public BoardSetup Initialize(GameInit data)
         {
             MyColor = data.You;
-            OpponentColor = data.You == Player.Red ? Player.Blue : Player.Red;
+            OpponentColor = MyColor.Opponent();
 
-            GetAllHomeCoordinatesFor(OpponentColor).ForEach(c => possibleFlagCoordinates.Add(c));
+            OpponentColor.GetAllHomeCoordinates().ForEach(c => possibleFlagCoordinates.Add(c));
 
             if (MyColor == Player.Blue) strategyData.TransposeAll();
 
-            var pieces = random.Next(100) < strategyData.ChanceAtFixedStartingPosition
-                ? SetupBoardFromFixedPosition()
-                : SetupBoardWithProbabilities();
+            var pieces = setupStrategy.GetPieces();
 
             pieces.ForEach(p => unmovedOwnPieceCoordinates.Add(p.Position));
             pieces.ForEach(p => unrevealedOwnPieceCoordinates.Add(p.Position));
 
             hasInitialized = true;
 
-            return new BoardSetup { Pieces = pieces.ToArray() };
-        }
-
-        private IEnumerable<Point> GetAllHomeCoordinatesFor(Player player)
-        {
-            for (int x = 0; x < 10; x++)
-            {
-                for (int y = 0; y < 4; y++)
-                {
-                    yield return
-                        player == Player.Red
-                        ? new Point(x, y)
-                        : new Point(x, y).Transpose();
-                }
-            }
-        }
-
-        private IEnumerable<Piece> SetupBoardFromFixedPosition()
-        {
-            return strategyData.FixedStartGrids
-                .OrderBy(_ => Guid.NewGuid()) // quick and dirty shuffle
-                .First()
-                .StartingPositions
-                .Select(tuple => new Piece
-                {
-                    Rank = tuple.Item1,
-                    Position = tuple.Item2
-                })
-                .ToList();
-        }
-
-        private IEnumerable<Piece> SetupBoardWithProbabilities()
-        {
-            var pieces = new List<Piece>();
-
-            foreach (var grid in strategyData.StartPositionGrids)
-            {
-                var maxIterations = 10000;
-                for (int i = 0; i < maxIterations; i++)
-                {
-                    var piece = grid.PickStartingPosition(random.Next());
-                    if (pieces.Any(x => x.Position == piece.Position)) continue;
-                    pieces.Add(piece);
-                    break;
-                }
-            }
-
-            return pieces;
+            return new BoardSetup { Pieces = pieces };
         }
 
         public Move? Process(GameState state)
@@ -114,8 +67,8 @@ namespace ExcelBot.Runtime
         private Move DecideNextMove(GameState state)
         {
             var move = state.Board
-                .Where(c => c.Owner == MyColor) // only my pieces can be moved
-                .SelectMany(c => GetPossibleMovesFor(c, state)) // all options from all starting points
+                .Where(c => c.Owner == MyColor)
+                .SelectMany(c => GetPossibleMovesFor(c, state))
                 .OrderByDescending(move => move.Score)
                 .First();
 
@@ -135,19 +88,30 @@ namespace ExcelBot.Runtime
 
         private IEnumerable<MoveWithDetails> GetPossibleMovesFor(Cell origin, GameState state)
         {
-            if (origin.Rank == "Flag" || origin.Rank == "Bomb") return Enumerable.Empty<MoveWithDetails>();
+            if (origin.Rank == "Flag" || origin.Rank == "Bomb")
+            {
+                return Enumerable.Empty<MoveWithDetails>();
+            }
 
-            var deltas = new Point[] { new Point(-1, 0), new Point(+1, 0), new Point(0, -1), new Point(0, +1) };
+            var deltas = new Point[]
+            {
+                new Point(-1, 0),
+                new Point(+1, 0),
+                new Point(0, -1),
+                new Point(0, +1),
+            };
 
             return deltas.SelectMany(delta =>
             {
                 var result = new List<MoveWithDetails>();
                 var steps = 0;
                 var target = origin.Coordinate;
+
                 while (steps++ < 1 || origin.Rank == "Scout")
                 {
-                    target = target + delta;
+                    target += delta;
                     var targetCell = state.Board.FirstOrDefault(c => c.Coordinate == target);
+
                     if (targetCell == null) break; // Out of bounds
                     if (targetCell.IsWater) break; // Water ends our options
                     if (targetCell.Owner == MyColor) break; // Own pieces block the path
@@ -160,8 +124,8 @@ namespace ExcelBot.Runtime
                         WillBeDecisiveVictory = targetCell.IsKnownPiece && targetCell.CanBeDefeatedBy(origin.Rank),
                         WillBeDecisiveLoss = targetCell.IsKnownPiece && targetCell.WillCauseDefeatFor(origin.Rank),
                         WillBeUnknownBattle = targetCell.IsUnknownPiece,
-                        IsBattleOnOwnHalf = targetCell.IsPiece && targetCell.IsOnOwnHalf(MyColor),
-                        IsBattleOnOpponentHalf = targetCell.IsPiece && targetCell.IsOnOpponentHalf(MyColor),
+                        IsBattleOnOwnHalf = targetCell.IsPiece && target.IsOnOwnHalfFor(MyColor),
+                        IsBattleOnOpponentHalf = targetCell.IsPiece && target.IsOnOpponentHalfFor(MyColor),
                         IsMoveTowardsOpponentHalf = IsMoveTowardsOpponentHalf(origin.Coordinate, target),
                         IsMoveWithinOpponentHalf = IsMoveWithinOpponentHalf(origin.Coordinate, target),
                         IsMovingForFirstTime = unmovedOwnPieceCoordinates.Contains(origin.Coordinate),
@@ -172,20 +136,20 @@ namespace ExcelBot.Runtime
                         Steps = steps,
                     };
 
-                    SetScoreForMove(move);
+                    move.CalculateScore(strategyData, random);
 
                     result.Add(move);
 
-                    if (targetCell.Owner != null) break; // Can't jump over pieces, so this stops the line
+                    // Can't jump over pieces, so once we see one we stop stepping
+                    if (targetCell.Owner != null) break;
                 }
+
                 return result;
             });
         }
 
         private double GetSmallestManhattanDistanceToPotentialFlag(GameState state, Point source)
         {
-            bool isWaterColumn(Point p) => p.X == 2 || p.X == 3 || p.X == 6 || p.X == 7;
-
             return state.Board
                 .Where(cell => possibleFlagCoordinates.Contains(cell.Coordinate))
                 .Select(cell =>
@@ -196,7 +160,7 @@ namespace ExcelBot.Runtime
                     // because that might block us on a path to the other's flag.
                     // As a shortcut/hack we fake an increase in Manhattan Distance
                     // to avoid scoring this move well.
-                    if (Cell.IsOnOwnHalf(MyColor, cell.Coordinate) && isWaterColumn(cell.Coordinate))
+                    if (cell.Coordinate.IsOnOwnHalfFor(MyColor) && cell.Coordinate.IsWaterColumn())
                     {
                         dist += 3;
                     }
@@ -226,41 +190,10 @@ namespace ExcelBot.Runtime
                 ? from.Y > 5 && to.Y > 5
                 : from.Y < 4 && to.Y < 4;
 
-        private void SetScoreForMove(MoveWithDetails move)
-        {
-            if (move.WillBeDecisiveVictory) move.Score += strategyData.DecisiveVictoryPoints;
-            if (move.WillBeDecisiveLoss) move.Score += strategyData.DecisiveLossPoints;
-            if (move.WillBeUnknownBattle && move.IsBattleOnOwnHalf) move.Score += strategyData.UnknownBattleOwnHalfPoints;
-            if (move.WillBeUnknownBattle && move.IsBattleOnOpponentHalf) move.Score += strategyData.UnknownBattleOpponentHalfPoints;
-            if (move.IsMoveTowardsOpponentHalf) move.Score += strategyData.BonusPointsForMoveTowardsOpponent;
-            if (move.IsMoveWithinOpponentHalf) move.Score += strategyData.BonusPointsForMoveWithinOpponentArea;
-            if (move.IsMovingForFirstTime) move.Score += strategyData.BonusPointsForMovingPieceForTheFirstTime;
-            if (move.IsMoveForUnrevealedPiece) move.Score += strategyData.BonusPointsForMovingUnrevealedPiece;
-            
-            if (move.NetChangeInManhattanDistanceToPotentialFlag < 0)
-                move.Score += strategyData.ScoutJumpsToPotentialFlagsMultiplication
-                    ? strategyData.BonusPointsForMovesGettingCloserToPotentialFlags 
-                        * (move.Steps > 1 ? Math.Abs(move.NetChangeInManhattanDistanceToPotentialFlag) : 1)
-                    : strategyData.BonusPointsForMovesGettingCloserToPotentialFlags;
-
-            var boost = 0;
-            if (move.Rank == "Spy") boost = strategyData.BoostForSpy;
-            if (move.Rank == "Scout") boost = strategyData.BoostForScout;
-            if (move.Rank == "Miner") boost = strategyData.BoostForMiner;
-            if (move.Rank == "General") boost = strategyData.BoostForGeneral;
-            if (move.Rank == "Marshal") boost = strategyData.BoostForMarshal;
-
-            double boostMultiplier = (move.Score < 0 ? -boost : +boost) + 100;
-            move.Score *= boostMultiplier / 100;
-
-            double fuzzynessMultiplier = random.Next(strategyData.FuzzynessFactor) + 100;
-            move.Score *= fuzzynessMultiplier / 100;
-        }
-
         private void ProcessOpponentMove(GameState state)
         {
             state.Board
-                .Where(c => !c.IsPiece || !c.IsUnknownPiece || !c.IsOnOpponentHalf(MyColor))
+                .Where(c => !c.IsPiece || !c.IsUnknownPiece || !c.Coordinate.IsOnOpponentHalfFor(MyColor))
                 .ForEach(c => possibleFlagCoordinates.Remove(c.Coordinate));
 
             if (state.LastMove != null)

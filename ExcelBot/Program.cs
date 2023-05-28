@@ -11,7 +11,7 @@ Console.WriteLine("bot-start");
 
 var initData = Console.ReadLine() ?? throw new Exception("No GameInit");
 var gameInit = GameInit.FromJson(initData);
-var boardSetup = strategy.initialize(gameInit);
+var boardSetup = strategy.Initialize(gameInit);
 var setupMessage = JsonConvert.SerializeObject(boardSetup);
 
 Console.WriteLine(setupMessage);

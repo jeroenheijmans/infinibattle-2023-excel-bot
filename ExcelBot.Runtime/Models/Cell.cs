@@ -41,34 +41,6 @@
             return false; // Spy never defeats an attacker
         }
 
-        public bool IsOnOpponentHalf(Player attacker)
-        {
-            return attacker == Player.Red
-                ? Coordinate.Y > 5
-                : Coordinate.Y < 4;
-        }
-
-        public static bool IsOnOpponentHalf(Player attacker, Point coordinate)
-        {
-            return attacker == Player.Red
-                ? coordinate.Y > 5
-                : coordinate.Y < 4;
-        }
-
-        public bool IsOnOwnHalf(Player attacker)
-        {
-            return attacker == Player.Red
-                ? Coordinate.Y < 4
-                : Coordinate.Y > 5;
-        }
-
-        public static bool IsOnOwnHalf(Player attacker, Point coordinate)
-        {
-            return attacker == Player.Red
-                ? coordinate.Y < 4
-                : coordinate.Y > 5;
-        }
-
         public bool IsOpponentPiece(Player myColor)
         {
             return Owner.HasValue && Owner.Value != myColor;
