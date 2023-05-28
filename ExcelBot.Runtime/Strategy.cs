@@ -149,19 +149,19 @@ namespace ExcelBot.Runtime
             });
         }
 
-        private double GetSmallestManhattanDistanceToPotentialFlag(GameState state, Point source)
+        private double GetSmallestManhattanDistanceToPotentialFlag(GameState state, Point intendedMoveTarget)
         {
             return state.Board
                 .Where(cell => possibleFlagCoordinates.Contains(cell.Coordinate))
-                .Select(cell =>
+                .Select(possibleFlagCoordinate =>
                 {
-                    double dist = source.DistanceTo(cell.Coordinate);
+                    double dist = intendedMoveTarget.DistanceTo(possibleFlagCoordinate.Coordinate);
 
                     // We'll dislike moving into "water" columns on our own half
                     // because that might block us on a path to the other's flag.
                     // As a shortcut/hack we fake an increase in Manhattan Distance
                     // to avoid scoring this move well.
-                    if (cell.Coordinate.IsOnOwnHalfFor(MyColor) && cell.Coordinate.IsWaterColumn())
+                    if (intendedMoveTarget.IsOnOwnHalfFor(MyColor) && intendedMoveTarget.IsWaterColumn())
                     {
                         dist += 3;
                     }
@@ -169,9 +169,9 @@ namespace ExcelBot.Runtime
                     // The Excel sheet has probabilities for where the flag may be,
                     // and we translate this into a virtual decrease in "distance"
                     // by turning high probabilities into lower return values.
-                    if (strategyData.OpponentFlagProbabilities.ContainsKey(cell.Coordinate))
+                    if (strategyData.OpponentFlagProbabilities.ContainsKey(possibleFlagCoordinate.Coordinate))
                     {
-                        int probability = strategyData.OpponentFlagProbabilities[cell.Coordinate];
+                        int probability = strategyData.OpponentFlagProbabilities[possibleFlagCoordinate.Coordinate];
                         double divider = (100 + probability) / 100;
                         dist /= divider;
                     }
